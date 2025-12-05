@@ -1,0 +1,22 @@
+[
+  {"courseID": 1, "creditNumber": 3, "courseName": "Intro to Programming"},
+  {"courseID": 2, "creditNumber": 4, "courseName": "Data Structures"},
+  {"courseID": 3, "creditNumber": 3, "courseName": "Algorithms"},
+  {"courseID": 4, "creditNumber": 3, "courseName": "Operating Systems"},
+  {"courseID": 5, "creditNumber": 4, "courseName": "Database Systems"},
+  {"courseID": 6, "creditNumber": 3, "courseName": "Computer Networks"},
+  {"courseID": 7, "creditNumber": 3, "courseName": "Software Engineering"},
+  {"courseID": 8, "creditNumber": 2, "courseName": "Web Development"},
+  {"courseID": 9, "creditNumber": 3, "courseName": "Mobile App Development"},
+  {"courseID": 10, "creditNumber": 3, "courseName": "Machine Learning"},
+  {"courseID": 11, "creditNumber": 4, "courseName": "Artificial Intelligence"},
+  {"courseID": 12, "creditNumber": 3, "courseName": "Computer Graphics"},
+  {"courseID": 13, "creditNumber": 3, "courseName": "Cybersecurity"},
+  {"courseID": 14, "creditNumber": 3, "courseName": "Human-Computer Interaction"},
+  {"courseID": 15, "creditNumber": 3, "courseName": "Embedded Systems"},
+  {"courseID": 16, "creditNumber": 3, "courseName": "Cloud Computing"},
+  {"courseID": 17, "creditNumber": 3, "courseName": "Big Data Analytics"},
+  {"courseID": 18, "creditNumber": 3, "courseName": "Blockchain Fundamentals"},
+  {"courseID": 19, "creditNumber": 3, "courseName": "Game Development"},
+  {"courseID": 20, "creditNumber": 3, "courseName": "Quantum Computing"}
+]

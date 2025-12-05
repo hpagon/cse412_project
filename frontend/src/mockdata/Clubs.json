@@ -1,0 +1,22 @@
+[
+  {"clubID":1,"name":"Robotics Club","description":"Building and programming robots","memberCount":25},
+  {"clubID":2,"name":"Chess Club","description":"Weekly chess matches","memberCount":18},
+  {"clubID":3,"name":"Art Club","description":"Painting, drawing, and sculpture","memberCount":12},
+  {"clubID":4,"name":"Future Coders Club","description":"Learn coding and work on projects","memberCount":30},
+  {"clubID":5,"name":"Drama Club","description":"Performing arts and theater","memberCount":15},
+  {"clubID":6,"name":"Music Club","description":"Band, choir, and music events","memberCount":20},
+  {"clubID":7,"name":"Science Club","description":"Explore science experiments","memberCount":22},
+  {"clubID":8,"name":"Math Club","description":"Math competitions and fun problems","memberCount":16},
+  {"clubID":9,"name":"Debate Club","description":"Public speaking and debates","memberCount":14},
+  {"clubID":10,"name":"Photography Club","description":"Capture moments and edit photos","memberCount":10},
+  {"clubID":11,"name":"Astronomy Club","description":"Stargazing and astronomy projects","memberCount":12},
+  {"clubID":12,"name":"Eco Club","description":"Environmental awareness and activities","memberCount":18},
+  {"clubID":13,"name":"Gaming Club","description":"Video and board games","memberCount":25},
+  {"clubID":14,"name":"Cooking Club","description":"Learn and share recipes","memberCount":12},
+  {"clubID":15,"name":"Yoga Club","description":"Wellness and yoga sessions","memberCount":10},
+  {"clubID":16,"name":"Language Club","description":"Practice new languages","memberCount":20},
+  {"clubID":17,"name":"Photography Club II","description":"Advanced photography techniques","memberCount":8},
+  {"clubID":18,"name":"Robotics Club II","description":"More robotics projects","memberCount":15},
+  {"clubID":19,"name":"Film Club","description":"Watch and discuss films","memberCount":18},
+  {"clubID":20,"name":"Writers Club","description":"Creative writing and workshops","memberCount":14}
+]

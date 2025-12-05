@@ -1,0 +1,20 @@
+[
+  {
+    "ASUID": "1000000001",
+    "DOB": "2000-05-10",
+    "asuriteUserID": "ajaimesf",
+    "password": "pass1234",
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "middleName": "M"
+  },
+  {
+    "ASUID": "1000000002",
+    "DOB": "1998-08-21",
+    "asuriteUserID": "bob02",
+    "password": "pass5678",
+    "firstName": "Bob",
+    "lastName": "Johnson",
+    "middleName": "N"
+  }
+]
