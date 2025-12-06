@@ -1,74 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import './Profile.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./Profile.css";
 
-// Import mock data
-import peopleData from '../../mockdata/People.json';
-import studentsData from '../../mockdata/Students.json';
-import clubsData from '../../mockdata/Clubs.json';
-import attendsClubData from '../../mockdata/Attends_Club.json';
+const API_URL = "http://localhost:3000/api";
 
-const Profile = ({ asurite }) => {
-  const [personInfo, setPersonInfo] = useState(null);
-  const [studentInfo, setStudentInfo] = useState(null);
-  const [studentClubs, setStudentClubs] = useState([]);
+const Profile = ({ user }) => {
+  const [clubs, setClubs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!asurite) return;
+    if (!user?.asuid) return;
 
-    // Find person by asuriteUserID
-    const person = peopleData.find(p => p.asuriteUserID === asurite);
-    setPersonInfo(person);
+    const fetchClubs = async () => {
+      try {
+        const response = await axios.get(
+          `${API_URL}/clubs/student/${user.asuid}`
+        );
+        setClubs(response.data);
+      } catch (error) {
+        console.error("Error fetching clubs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (person) {
-      // Find student info by ASUID
-      const student = studentsData.find(s => s.ASUID === person.ASUID);
-      setStudentInfo(student);
+    fetchClubs();
+  }, [user]);
 
-      // Find clubs the student is in
-      const clubIds = attendsClubData
-        .filter(ac => ac.ASUID === person.ASUID)
-        .map(ac => ac.clubID);
+  if (!user) {
+    return <div>No user data available.</div>;
+  }
 
-      const clubs = clubsData.filter(c => clubIds.includes(c.clubID));
-      setStudentClubs(clubs);
-    }
-  }, [asurite]);
-
-  if (!personInfo) {
+  if (loading) {
     return <div>Loading profile...</div>;
   }
 
   return (
     <div className="profile-wrapper">
-  <div className="profile">
-    <h2>Profile: {personInfo.firstName} {personInfo.lastName}</h2>
-    <p><strong>ASURITE ID:</strong> {personInfo.asuriteUserID}</p>
-    <p><strong>Date of Birth:</strong> {personInfo.DOB}</p>
+      <div className="profile">
+        <h2>
+          Profile: {user.firstname} {user.lastname}
+        </h2>
+        <p>
+          <strong>ASURITE ID:</strong> {user.asuriteuserid}
+        </p>
+        <p>
+          <strong>Date of Birth:</strong> {user.dob}
+        </p>
 
-    {studentInfo && (
-      <>
-        <h3>Student Info</h3>
-        <p><strong>Enrollment Date:</strong> {studentInfo.enrollmentDate}</p>
-        <p><strong>Graduation Date:</strong> {studentInfo.gradDate}</p>
-        <p><strong>Major:</strong> {studentInfo.Major}</p>
-        <p><strong>Minor:</strong> {studentInfo.Minor}</p>
-        <p><strong>GPA:</strong> {studentInfo.GPA}</p>
-      </>
-    )}
+        {user.role === "student" && (
+          <>
+            <h3>Student Info</h3>
+            <p>
+              <strong>Enrollment Date:</strong> {user.enrollmentdate}
+            </p>
+            <p>
+              <strong>Graduation Date:</strong> {user.graddate || "N/A"}
+            </p>
+            <p>
+              <strong>Major:</strong> {user.major}
+            </p>
+            <p>
+              <strong>Minor:</strong> {user.minor || "N/A"}
+            </p>
+            <p>
+              <strong>GPA:</strong> {user.gpa}
+            </p>
+          </>
+        )}
 
-    {studentClubs.length > 0 && (
-      <>
-        <h3>Clubs</h3>
-        <ul>
-          {studentClubs.map(c => (
-            <li key={c.clubID}>{c.name}</li>
-          ))}
-        </ul>
-      </>
-    )}
-  </div>
-</div>
+        {user.role === "professor" && (
+          <>
+            <h3>Professor Info</h3>
+            <p>
+              <strong>Office:</strong> {user.officenumber || "N/A"}
+            </p>
+            <p>
+              <strong>Hire Date:</strong> {user.hiredate}
+            </p>
+            <p>
+              <strong>Rank:</strong> {user.rank}
+            </p>
+          </>
+        )}
 
+        {clubs.length > 0 && (
+          <>
+            <h3>Clubs</h3>
+            <ul>
+              {clubs.map((c) => (
+                <li key={c.clubid}>{c.name}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
