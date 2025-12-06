@@ -82,9 +82,9 @@ function App() {
         />
 
         {/* Other pages */}
-        <Route path="/courses" element={<CourseCatalog />} />
-        <Route path="/clubs" element={<ClubList />} />
-        <Route path="/events" element={<EventCalendar />} />
+        <Route path="/courses" element={<CourseCatalog user={user} />} />
+        <Route path="/clubs" element={<ClubList user={user} />} />
+        <Route path="/events" element={<EventCalendar user={user} />} />
 
         {/* Fallback route */}
         <Route

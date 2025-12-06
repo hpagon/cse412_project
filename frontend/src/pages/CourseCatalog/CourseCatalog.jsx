@@ -5,27 +5,95 @@ import "./CourseCatalog.css";
 const API_URL = "http://localhost:3000/api";
 const ITEMS_PER_PAGE = 10;
 
-const CourseCatalog = () => {
+const CourseCatalog = ({ user }) => {
   const [allCourses, setAllCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [filters, setFilters] = useState({ name: "", credit: "", campus: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/courses`);
-        setAllCourses(response.data);
-        setFilteredCourses(response.data);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      } finally {
-        setLoading(false);
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/courses`);
+      setAllCourses(response.data);
+      setFilteredCourses(response.data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEnrolled = async () => {
+    if (!user?.asuid) return;
+    try {
+      if (user.role === "student") {
+        const response = await axios.get(
+          `${API_URL}/courses/student/${user.asuid}`
+        );
+        setEnrolledCourses(response.data.map((c) => c.courseid));
+      } else if (user.role === "professor") {
+        const response = await axios.get(
+          `${API_URL}/courses/professor/${user.asuid}`
+        );
+        setEnrolledCourses(response.data.map((c) => c.courseid));
       }
-    };
+    } catch (error) {
+      console.error("Error fetching enrolled courses:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchCourses();
-  }, []);
+    fetchEnrolled();
+  }, [user]);
+
+  const handleEnroll = async (courseId) => {
+    try {
+      await axios.post(`${API_URL}/courses/enroll`, {
+        asuid: user.asuid,
+        courseId: courseId,
+      });
+      setEnrolledCourses([...enrolledCourses, courseId]);
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to enroll");
+    }
+  };
+
+  const handleDrop = async (courseId) => {
+    try {
+      await axios.delete(`${API_URL}/courses/drop`, {
+        data: { asuid: user.asuid, courseId: courseId },
+      });
+      setEnrolledCourses(enrolledCourses.filter((id) => id !== courseId));
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to drop course");
+    }
+  };
+
+  const handleTeach = async (courseId) => {
+    try {
+      await axios.post(`${API_URL}/courses/teach`, {
+        asuid: user.asuid,
+        courseId: courseId,
+      });
+      setEnrolledCourses([...enrolledCourses, courseId]);
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to sign up to teach");
+    }
+  };
+
+  const handleUnteach = async (courseId) => {
+    try {
+      await axios.delete(`${API_URL}/courses/unteach`, {
+        data: { asuid: user.asuid, courseId: courseId },
+      });
+      setEnrolledCourses(enrolledCourses.filter((id) => id !== courseId));
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to remove from teaching");
+    }
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -118,30 +186,65 @@ const CourseCatalog = () => {
               <th>Campus</th>
               <th>Building</th>
               <th>Room</th>
+              {user && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6">Loading courses...</td>
+                <td colSpan={user ? "7" : "6"}>Loading courses...</td>
               </tr>
             ) : (
-              paginatedCourses.map((course) => (
-                <tr key={course.courseid}>
-                  <td title={course.courseid}>{course.courseid}</td>
-                  <td title={course.coursename}>{course.coursename}</td>
-                  <td title={course.creditnumber}>{course.creditnumber}</td>
-                  <td title={course.campus || "N/A"}>
-                    {course.campus || "N/A"}
-                  </td>
-                  <td title={course.building || "N/A"}>
-                    {course.building || "N/A"}
-                  </td>
-                  <td title={course.roomnumber || "N/A"}>
-                    {course.roomnumber || "N/A"}
-                  </td>
-                </tr>
-              ))
+              paginatedCourses.map((course) => {
+                const isEnrolled = enrolledCourses.includes(course.courseid);
+                return (
+                  <tr key={course.courseid}>
+                    <td>{course.courseid}</td>
+                    <td>{course.coursename}</td>
+                    <td>{course.creditnumber}</td>
+                    <td>{course.campus || "N/A"}</td>
+                    <td>{course.building || "N/A"}</td>
+                    <td>{course.roomnumber || "N/A"}</td>
+                    {user && (
+                      <td>
+                        {user.role === "student" ? (
+                          isEnrolled ? (
+                            <button
+                              className="drop-btn"
+                              onClick={() => handleDrop(course.courseid)}
+                            >
+                              Drop
+                            </button>
+                          ) : (
+                            <button
+                              className="enroll-btn"
+                              onClick={() => handleEnroll(course.courseid)}
+                            >
+                              Enroll
+                            </button>
+                          )
+                        ) : user.role === "professor" ? (
+                          isEnrolled ? (
+                            <button
+                              className="drop-btn"
+                              onClick={() => handleUnteach(course.courseid)}
+                            >
+                              Remove
+                            </button>
+                          ) : (
+                            <button
+                              className="enroll-btn"
+                              onClick={() => handleTeach(course.courseid)}
+                            >
+                              Teach
+                            </button>
+                          )
+                        ) : null}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
