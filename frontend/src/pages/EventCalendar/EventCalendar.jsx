@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { formatDate, formatTime } from "../../utils/formatDate";
 import "./EventCalendar.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -133,9 +134,9 @@ const Events = () => {
               paginatedEvents.map((event) => (
                 <tr key={event.eventid}>
                   <td>{event.eventid}</td>
-                  <td>{event.date}</td>
-                  <td>{event.starttime}</td>
-                  <td>{event.endtime}</td>
+                  <td>{formatDate(event.date)}</td>
+                  <td>{formatTime(event.starttime)}</td>
+                  <td>{formatTime(event.endtime)}</td>
                   <td>{event.clubname || "N/A"}</td>
                   <td>{event.campus || "N/A"}</td>
                   <td>{event.building || "N/A"}</td>

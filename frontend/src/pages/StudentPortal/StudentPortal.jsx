@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { formatDate, formatTime } from "../../utils/formatDate";
 import "./StudentPortal.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -73,14 +74,14 @@ const StudentPortal = ({ user }) => {
           <strong>ASURITE ID:</strong> {user.asuriteuserid}
         </p>
         <p>
-          <strong>Date of Birth:</strong> {user.dob}
+          <strong>Date of Birth:</strong> {formatDate(user.dob)}
         </p>
         <hr />
         <p>
-          <strong>Enrollment Date:</strong> {user.enrollmentdate}
+          <strong>Enrollment Date:</strong> {formatDate(user.enrollmentdate)}
         </p>
         <p>
-          <strong>Graduation Date:</strong> {user.graddate || "N/A"}
+          <strong>Graduation Date:</strong> {formatDate(user.graddate)}
         </p>
         <p>
           <strong>Major:</strong> {user.major}
@@ -165,8 +166,8 @@ const StudentPortal = ({ user }) => {
               <ul>
                 {upcomingEvents.map((e) => (
                   <li key={e.eventid}>
-                    {e?.date || "N/A"} | {e?.starttime || "N/A"} -{" "}
-                    {e?.endtime || "N/A"}
+                    {formatDate(e?.date)} | {formatTime(e?.starttime)} -{" "}
+                    {formatTime(e?.endtime)}
                   </li>
                 ))}
               </ul>
@@ -180,8 +181,8 @@ const StudentPortal = ({ user }) => {
               <ul>
                 {attendedEvents.map((e) => (
                   <li key={e.eventid}>
-                    {e?.date || "N/A"} | {e?.starttime || "N/A"} -{" "}
-                    {e?.endtime || "N/A"}
+                    {formatDate(e?.date)} | {formatTime(e?.starttime)} -{" "}
+                    {formatTime(e?.endtime)}
                   </li>
                 ))}
               </ul>

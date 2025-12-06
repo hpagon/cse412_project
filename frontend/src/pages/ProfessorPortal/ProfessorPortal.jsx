@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { formatDate } from "../../utils/formatDate";
 import "./ProfessorPortal.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -43,14 +44,14 @@ const ProfessorPortal = ({ user }) => {
           <strong>ASURITE ID:</strong> {user.asuriteuserid}
         </p>
         <p>
-          <strong>Date of Birth:</strong> {user.dob}
+          <strong>Date of Birth:</strong> {formatDate(user.dob)}
         </p>
         <hr />
         <p>
           <strong>Office:</strong> {user.officenumber || "N/A"}
         </p>
         <p>
-          <strong>Hire Date:</strong> {user.hiredate}
+          <strong>Hire Date:</strong> {formatDate(user.hiredate)}
         </p>
         <p>
           <strong>Rank:</strong> {user.rank}

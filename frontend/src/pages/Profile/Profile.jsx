@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { formatDate } from "../../utils/formatDate";
 import "./Profile.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -45,17 +46,18 @@ const Profile = ({ user }) => {
           <strong>ASURITE ID:</strong> {user.asuriteuserid}
         </p>
         <p>
-          <strong>Date of Birth:</strong> {user.dob}
+          <strong>Date of Birth:</strong> {formatDate(user.dob)}
         </p>
 
         {user.role === "student" && (
           <>
             <h3>Student Info</h3>
             <p>
-              <strong>Enrollment Date:</strong> {user.enrollmentdate}
+              <strong>Enrollment Date:</strong>{" "}
+              {formatDate(user.enrollmentdate)}
             </p>
             <p>
-              <strong>Graduation Date:</strong> {user.graddate || "N/A"}
+              <strong>Graduation Date:</strong> {formatDate(user.graddate)}
             </p>
             <p>
               <strong>Major:</strong> {user.major}
@@ -76,7 +78,7 @@ const Profile = ({ user }) => {
               <strong>Office:</strong> {user.officenumber || "N/A"}
             </p>
             <p>
-              <strong>Hire Date:</strong> {user.hiredate}
+              <strong>Hire Date:</strong> {formatDate(user.hiredate)}
             </p>
             <p>
               <strong>Rank:</strong> {user.rank}
