@@ -1,5 +1,86 @@
 .professor-portal {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  align-items: flex-start;
+  font-family: "Inter", sans-serif;
+}
+
+.professor-portal .left-card {
+  flex: 0 0 300px;
+  background-color: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 2rem;
+}
+
+.professor-portal .left-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.professor-portal .left-card p {
+  margin: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.professor-portal .left-card p strong {
+  color: #111827;
+}
+
+.professor-portal .left-card hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1rem 0;
+}
+
+.professor-portal .right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.professor-portal .right-card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.professor-portal .right-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.professor-portal .right-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.professor-portal .right-card th,
+.professor-portal .right-card td {
+  border-bottom: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.professor-portal .right-card th {
+  background-color: #f0f0f0;
+  color: #374151;
 }

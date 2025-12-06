@@ -5,9 +5,10 @@ import "./ClubList.css";
 const API_URL = "http://localhost:3000/api";
 const ITEMS_PER_PAGE = 10;
 
-const Clubs = () => {
+const Clubs = ({ user }) => {
   const [allClubs, setAllClubs] = useState([]);
   const [filteredClubs, setFilteredClubs] = useState([]);
+  const [joinedClubs, setJoinedClubs] = useState([]);
   const [filters, setFilters] = useState({
     name: "",
     description: "",
@@ -17,20 +18,79 @@ const Clubs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  const fetchClubs = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/clubs`);
+      setAllClubs(response.data);
+      setFilteredClubs(response.data);
+    } catch (error) {
+      console.error("Error fetching clubs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchJoinedClubs = async () => {
+    if (!user?.asuid || user.role !== "student") return;
+    try {
+      const response = await axios.get(
+        `${API_URL}/clubs/student/${user.asuid}`
+      );
+      setJoinedClubs(response.data.map((c) => c.clubid));
+    } catch (error) {
+      console.error("Error fetching joined clubs:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/clubs`);
-        setAllClubs(response.data);
-        setFilteredClubs(response.data);
-      } catch (error) {
-        console.error("Error fetching clubs:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchClubs();
-  }, []);
+    fetchJoinedClubs();
+  }, [user]);
+
+  const handleJoin = async (clubId) => {
+    try {
+      await axios.post(`${API_URL}/clubs/join`, {
+        asuid: user.asuid,
+        clubId: clubId,
+      });
+      setJoinedClubs([...joinedClubs, clubId]);
+      // Update member count in UI
+      setAllClubs(
+        allClubs.map((c) =>
+          c.clubid === clubId ? { ...c, membercount: c.membercount + 1 } : c
+        )
+      );
+      setFilteredClubs(
+        filteredClubs.map((c) =>
+          c.clubid === clubId ? { ...c, membercount: c.membercount + 1 } : c
+        )
+      );
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to join club");
+    }
+  };
+
+  const handleLeave = async (clubId) => {
+    try {
+      await axios.delete(`${API_URL}/clubs/leave`, {
+        data: { asuid: user.asuid, clubId: clubId },
+      });
+      setJoinedClubs(joinedClubs.filter((id) => id !== clubId));
+      // Update member count in UI
+      setAllClubs(
+        allClubs.map((c) =>
+          c.clubid === clubId ? { ...c, membercount: c.membercount - 1 } : c
+        )
+      );
+      setFilteredClubs(
+        filteredClubs.map((c) =>
+          c.clubid === clubId ? { ...c, membercount: c.membercount - 1 } : c
+        )
+      );
+    } catch (error) {
+      alert(error.response?.data?.error || "Failed to leave club");
+    }
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -136,22 +196,47 @@ const Clubs = () => {
               <th>Name</th>
               <th>Description</th>
               <th>Members</th>
+              {user?.role === "student" && <th>Action</th>}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="4">Loading clubs...</td>
+                <td colSpan={user?.role === "student" ? "5" : "4"}>
+                  Loading clubs...
+                </td>
               </tr>
             ) : (
-              paginatedClubs.map((c) => (
-                <tr key={c.clubid}>
-                  <td>{c.clubid}</td>
-                  <td>{c.name}</td>
-                  <td title={c.description}>{c.description}</td>
-                  <td>{c.membercount}</td>
-                </tr>
-              ))
+              paginatedClubs.map((c) => {
+                const isMember = joinedClubs.includes(c.clubid);
+                return (
+                  <tr key={c.clubid}>
+                    <td>{c.clubid}</td>
+                    <td>{c.name}</td>
+                    <td title={c.description}>{c.description}</td>
+                    <td>{c.membercount}</td>
+                    {user?.role === "student" && (
+                      <td>
+                        {isMember ? (
+                          <button
+                            className="drop-btn"
+                            onClick={() => handleLeave(c.clubid)}
+                          >
+                            Leave
+                          </button>
+                        ) : (
+                          <button
+                            className="enroll-btn"
+                            onClick={() => handleJoin(c.clubid)}
+                          >
+                            Join
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
