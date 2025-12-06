@@ -29,9 +29,19 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// Import routes (to be created)
-// const peopleRoutes = require('./routes/people');
-// app.use('/api/people', peopleRoutes);
+// Import routes
+const authRoutes = require("./routes/auth");
+const coursesRoutes = require("./routes/courses");
+const clubsRoutes = require("./routes/clubs");
+const eventsRoutes = require("./routes/events");
+const locationsRoutes = require("./routes/locations");
+
+// Use routes
+app.use("/api/auth", authRoutes);
+app.use("/api/courses", coursesRoutes);
+app.use("/api/clubs", clubsRoutes);
+app.use("/api/events", eventsRoutes);
+app.use("/api/locations", locationsRoutes);
 
 // Start server
 app.listen(PORT, () => {
