@@ -1,87 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import peopleData from '../../mockdata/People.json';
-import studentsData from '../../mockdata/Students.json';
-import attendsCourseData from '../../mockdata/Attends_Course.json';
-import coursesData from '../../mockdata/Courses.json';
-import attendsClubData from '../../mockdata/Attends_Club.json';
-import clubsData from '../../mockdata/Clubs.json';
-import hostData from '../../mockdata/Host.json';
-import eventsData from '../../mockdata/Event.json';
-import './StudentPortal.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./StudentPortal.css";
 
+const API_URL = "http://localhost:3000/api";
 const ITEMS_PER_PAGE = 5;
 
-const StudentPortal = ({ asurite }) => {
-  const [personInfo, setPersonInfo] = useState(null);
-  const [studentInfo, setStudentInfo] = useState(null);
+const StudentPortal = ({ user }) => {
   const [studentCourses, setStudentCourses] = useState([]);
   const [studentClubs, setStudentClubs] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [attendedEvents, setAttendedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!asurite) return;
+    if (!user?.asuid) return;
 
-    const person = peopleData.find(p => p.asuriteUserID === asurite);
-    setPersonInfo(person);
-    if (!person) return;
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-    const student = studentsData.find(s => s.ASUID === person.ASUID);
-    setStudentInfo(student);
-    if (!student) return;
+        // Fetch courses, clubs, and events in parallel
+        const [coursesRes, clubsRes, eventsRes] = await Promise.all([
+          axios.get(`${API_URL}/courses/student/${user.asuid}`),
+          axios.get(`${API_URL}/clubs/student/${user.asuid}`),
+          axios.get(`${API_URL}/events/student/${user.asuid}`),
+        ]);
 
-    // Courses
-    const courseIDs = attendsCourseData
-      .filter(ac => ac.ASUID === student.ASUID)
-      .map(ac => ac.courseID);
-    setStudentCourses(coursesData.filter(c => courseIDs.includes(c.courseID)));
+        setStudentCourses(coursesRes.data);
+        setStudentClubs(clubsRes.data);
 
-    // Clubs
-    const clubIDs = attendsClubData
-      .filter(ac => ac.ASUID === student.ASUID)
-      .map(ac => ac.clubID);
-    setStudentClubs(clubsData.filter(c => clubIDs.includes(c.clubID)));
+        // Split events into upcoming and attended
+        const now = new Date();
+        const upcoming = eventsRes.data.filter((e) => new Date(e.date) >= now);
+        const attended = eventsRes.data.filter((e) => new Date(e.date) < now);
 
-    // Events
-    const eventIDs = hostData
-      .filter(h => clubIDs.includes(h.clubID))
-      .map(h => h.eventID);
-    const allEvents = eventsData.filter(e => eventIDs.includes(e.eventID));
+        setUpcomingEvents(upcoming);
+        setAttendedEvents(attended);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const now = new Date();
-    const upcoming = allEvents.filter(e => new Date(e.date) >= now);
-    const attended = allEvents.filter(e => new Date(e.date) < now);
-
-    setUpcomingEvents(upcoming);
-    setAttendedEvents(attended);
-
-    setCurrentPage(1);
-  }, [asurite]);
+    fetchData();
+  }, [user]);
 
   const totalPages = Math.ceil(studentCourses.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedCourses = studentCourses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  const handlePrev = () => setCurrentPage(p => Math.max(p - 1, 1));
-  const handleNext = () => setCurrentPage(p => Math.min(p + 1, totalPages));
+  const paginatedCourses = studentCourses.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+  const handlePrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const handleNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
 
-  if (!personInfo) return <div>{asurite ? "Student not found." : "No ASURITE ID provided."}</div>;
-  if (!studentInfo) return <div>Loading student portal...</div>;
+  if (!user) return <div>No user data provided.</div>;
+  if (loading) return <div>Loading student portal...</div>;
 
   return (
     <div className="student-portal-container">
       {/* Profile Card */}
       <div className="left-card">
         <h3>Student Profile</h3>
-        <p><strong>Name:</strong> {personInfo.firstName} {personInfo.middleName || ''} {personInfo.lastName}</p>
-        <p><strong>ASURITE ID:</strong> {personInfo.asuriteUserID}</p>
-        <p><strong>Date of Birth:</strong> {personInfo.DOB}</p>
+        <p>
+          <strong>Name:</strong> {user.firstname} {user.middlename || ""}{" "}
+          {user.lastname}
+        </p>
+        <p>
+          <strong>ASURITE ID:</strong> {user.asuriteuserid}
+        </p>
+        <p>
+          <strong>Date of Birth:</strong> {user.dob}
+        </p>
         <hr />
-        <p><strong>Enrollment Date:</strong> {studentInfo.enrollmentDate}</p>
-        <p><strong>Graduation Date:</strong> {studentInfo.gradDate}</p>
-        <p><strong>Major:</strong> {studentInfo.Major}</p>
-        <p><strong>Minor:</strong> {studentInfo.Minor || 'N/A'}</p>
-        <p><strong>GPA:</strong> {studentInfo.GPA}</p>
+        <p>
+          <strong>Enrollment Date:</strong> {user.enrollmentdate}
+        </p>
+        <p>
+          <strong>Graduation Date:</strong> {user.graddate || "N/A"}
+        </p>
+        <p>
+          <strong>Major:</strong> {user.major}
+        </p>
+        <p>
+          <strong>Minor:</strong> {user.minor || "N/A"}
+        </p>
+        <p>
+          <strong>GPA:</strong> {user.gpa}
+        </p>
       </div>
 
       {/* Right Column */}
@@ -100,20 +109,29 @@ const StudentPortal = ({ asurite }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedCourses.map(c => (
-                    <tr key={c.courseID}>
-                      <td>{c.courseID}</td>
-                      <td>{c.courseName}</td>
-                      <td>{c.creditNumber}</td>
+                  {paginatedCourses.map((c) => (
+                    <tr key={c.courseid}>
+                      <td>{c.courseid}</td>
+                      <td>{c.coursename}</td>
+                      <td>{c.creditnumber}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {studentCourses.length > ITEMS_PER_PAGE && (
                 <div className="pagination">
-                  <button onClick={handlePrev} disabled={currentPage === 1}>Prev</button>
-                  <span>{currentPage} / {totalPages}</span>
-                  <button onClick={handleNext} disabled={currentPage === totalPages}>Next</button>
+                  <button onClick={handlePrev} disabled={currentPage === 1}>
+                    Prev
+                  </button>
+                  <span>
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={handleNext}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </>
@@ -127,9 +145,15 @@ const StudentPortal = ({ asurite }) => {
           <h3>Clubs</h3>
           {studentClubs.length > 0 ? (
             <ul>
-              {studentClubs.map(c => <li key={c.clubID}>{c.name}: {c.description || 'No description'}</li>)}
+              {studentClubs.map((c) => (
+                <li key={c.clubid}>
+                  {c.name}: {c.description || "No description"}
+                </li>
+              ))}
             </ul>
-          ) : <p>Not part of any club.</p>}
+          ) : (
+            <p>Not part of any club.</p>
+          )}
         </div>
 
         {/* Events */}
@@ -139,25 +163,31 @@ const StudentPortal = ({ asurite }) => {
             <h4>Upcoming Events</h4>
             {upcomingEvents.length > 0 ? (
               <ul>
-                {upcomingEvents.map(e => (
-                  <li key={e.eventID}>
-                    {e?.date || 'N/A'} | {e?.startTime || 'N/A'} - {e?.endTime || 'N/A'}
+                {upcomingEvents.map((e) => (
+                  <li key={e.eventid}>
+                    {e?.date || "N/A"} | {e?.starttime || "N/A"} -{" "}
+                    {e?.endtime || "N/A"}
                   </li>
                 ))}
               </ul>
-            ) : <p>No upcoming events.</p>}
+            ) : (
+              <p>No upcoming events.</p>
+            )}
           </div>
           <div>
             <h4 className="attended-heading"> Attended Events</h4>
             {attendedEvents.length > 0 ? (
               <ul>
-                {attendedEvents.map(e => (
-                  <li key={e.eventID}>
-                    {e?.date || 'N/A'} | {e?.startTime || 'N/A'} - {e?.endTime || 'N/A'}
+                {attendedEvents.map((e) => (
+                  <li key={e.eventid}>
+                    {e?.date || "N/A"} | {e?.starttime || "N/A"} -{" "}
+                    {e?.endtime || "N/A"}
                   </li>
                 ))}
               </ul>
-            ) : <p>No attended events yet.</p>}
+            ) : (
+              <p>No attended events yet.</p>
+            )}
           </div>
         </div>
       </div>

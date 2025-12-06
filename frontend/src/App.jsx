@@ -1,29 +1,34 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login/Login';
-import StudentPortal from './pages/StudentPortal/StudentPortal';
-import ProfessorPortal from './pages/ProfessorPortal/ProfessorPortal';
-import CourseCatalog from './pages/CourseCatalog/CourseCatalog';
-import ClubList from './pages/ClubList/ClubList';
-import EventCalendar from './pages/EventCalendar/EventCalendar';
-import Profile from './pages/Profile/Profile';
-import Navbar from './components/Navbar/Navbar';
+import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/Login/Login";
+import StudentPortal from "./pages/StudentPortal/StudentPortal";
+import ProfessorPortal from "./pages/ProfessorPortal/ProfessorPortal";
+import CourseCatalog from "./pages/CourseCatalog/CourseCatalog";
+import ClubList from "./pages/ClubList/ClubList";
+import EventCalendar from "./pages/EventCalendar/EventCalendar";
+import Profile from "./pages/Profile/Profile";
+import Navbar from "./components/Navbar/Navbar";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(null); // 'student' or 'professor'
-  const [asurite, setAsurite] = useState(null);   // store the user's Asurite ID
+  const [user, setUser] = useState(null); // store full user profile
 
-  const handleLogin = (type, id) => {
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
-    setUserType(type);
-    setAsurite(id);
+    setUserType(userData.role);
+    setUser(userData);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserType(null);
-    setAsurite(null);
+    setUser(null);
   };
 
   return (
@@ -39,7 +44,9 @@ function App() {
             !isLoggedIn ? (
               <Login onLogin={handleLogin} />
             ) : (
-              <Navigate to={userType === 'student' ? '/student' : '/professor'} />
+              <Navigate
+                to={userType === "student" ? "/student" : "/professor"}
+              />
             )
           }
         />
@@ -48,7 +55,7 @@ function App() {
         <Route
           path="/profile"
           element={
-            isLoggedIn ? <Profile asurite={asurite} /> : <Navigate to="/login" />
+            isLoggedIn ? <Profile user={user} /> : <Navigate to="/login" />
           }
         />
 
@@ -56,13 +63,21 @@ function App() {
         <Route
           path="/student"
           element={
-            userType === 'student' ? <StudentPortal asurite={asurite} /> : <Navigate to="/login" />
+            userType === "student" ? (
+              <StudentPortal user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
         <Route
           path="/professor"
           element={
-            userType === 'professor' ? <ProfessorPortal asurite={asurite} /> : <Navigate to="/login" />
+            userType === "professor" ? (
+              <ProfessorPortal user={user} />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
 
@@ -78,10 +93,10 @@ function App() {
             <Navigate
               to={
                 isLoggedIn
-                  ? userType === 'student'
-                    ? '/student'
-                    : '/professor'
-                  : '/login'
+                  ? userType === "student"
+                    ? "/student"
+                    : "/professor"
+                  : "/login"
               }
             />
           }

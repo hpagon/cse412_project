@@ -1,23 +1,49 @@
-import React, { useState } from 'react';
-import './Login.css';
+import React, { useState } from "react";
+import axios from "axios";
+import "./Login.css";
+
+const API_URL = "http://localhost:3000/api";
 
 const Login = ({ onLogin }) => {
-  const [asurite, setAsurite] = useState('');
-  const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('student');
-  const [error, setError] = useState('');
+  const [asurite, setAsurite] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    setError('');
+  const handleLogin = async () => {
+    setError("");
 
-    // Only validate that Asurite ID is entered
     if (!asurite.trim()) {
-      setError('Please enter your Asurite ID');
+      setError("Please enter your Asurite ID");
       return;
     }
 
-    // Password is ignored for demo purposes
-    onLogin(userType, asurite);
+    if (!password.trim()) {
+      setError("Please enter your password");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        asuriteUserID: asurite,
+        password: password,
+      });
+
+      // response.data contains full user profile with role
+      onLogin(response.data);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setError("Invalid credentials");
+      } else {
+        setError(
+          err.response?.data?.error || "Login failed. Please try again."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,25 +71,18 @@ const Login = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
-              onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+              onKeyPress={(e) => e.key === "Enter" && handleLogin()}
             />
-          </div>
-
-          <div className="form-group">
-            <label>User Type</label>
-            <select
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-            >
-              <option value="student">Student</option>
-              <option value="professor">Professor</option>
-            </select>
           </div>
 
           {error && <div className="error-message">{error}</div>}
 
-          <button onClick={handleLogin} className="login-button">
-            Sign In
+          <button
+            onClick={handleLogin}
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </div>
       </div>
